@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class MyTicTacToe {
 
     public static final char SYMBOL_X = 'X';
@@ -34,12 +36,88 @@ public class MyTicTacToe {
         }
     }
 
-    public boolean isWind(){
+    public Move readMove() {
+        Scanner s = new Scanner(System.in);
+        System.out.print("make move: ");
+        String myMove = s.nextLine();
+        String[] myString = myMove.split("-");
+        int myLine = Integer.valueOf(myString[0]);
+        int myCol = Integer.valueOf(myString[1]);
+        Move move = new Move(myLine, myCol);
+
+        return move;
+
+    }
+
+    public void makeMove(Move move, char symbol){
+        game[move.line][move.col] = symbol;
+    }
+
+    public boolean isWinLine(int line, char symbol){
+        boolean isWin= true;
+        int i = 0;
+        while (i < GAME_SIZE && isWin == true){
+            if(game[line][i]!= symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWinCol(int col, char symbol){
+        boolean isWin= true;
+        int i = 0;
+        while (i < GAME_SIZE && isWin == true){
+            if(game[i][col] != symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWinDiag1(char symbol){
+        boolean isWin = true;
+        int i= 0;
+        while (i < GAME_SIZE && isWin == true){
+            if (game[i][i] != symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+    public boolean isWinDiag2(char symbol){
+        boolean isWin = true;
+        int i= 0;
+        while (i < GAME_SIZE && isWin == true){
+            if (game[i][GAME_SIZE-i-1] != symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWin(Move move, char symbol){
+        boolean isWin = false;
         // testez linii
+        isWin = isWinLine(move.line, symbol);
         // testez coloane
-        // testez diagonala1
-        // testez diagonala2
-        return false;
+        if(isWin == false){
+            isWin = isWinCol(move.col, symbol);
+        }
+        // testez diag1
+        if(isWin == false && move.line == move.col){
+            isWin = isWinDiag1(symbol);
+
+        }
+        // testez diag2
+        if(isWin == false && move.line == GAME_SIZE - move.col - 1){
+            isWin = isWinDiag2(symbol);
+        }
+        return isWin;
     }
 
     public void playGame(){
@@ -48,21 +126,45 @@ public class MyTicTacToe {
         showGame();
 
         Player currentPlayer = player1;
+        char currentSymbol = SYMBOL_X;
         int nrMoves = 0;
         boolean isWin = false;
 
         while (isWin == false && nrMoves < 9){
 
             // citesc mutarea
+           Move move = readMove();
+
             // validez mutarea
             // efectuez mutarea
+            makeMove(move, currentSymbol);
+            showGame();
             // numar mutarea
-            // testez daca avem stare de WIN
+            nrMoves++;
+
+            if(nrMoves >= (2 * GAME_SIZE - 1)) {
+                // testez daca avem stare de WIN
+                isWin = isWin(move, currentSymbol);
+            }
 
             // daca nu e win sau mai am mutari -- schimb jucatorul
-        }
+            if(!isWin){
+                if(currentPlayer == player1){
+                    currentPlayer = player2;
+                    currentSymbol = SYMBOL_0;
+                } else {
+                    currentPlayer = player1;
+                    currentSymbol = SYMBOL_X;
+                }
+            }
 
+        }
         // afisez mesaj corespunzator
+        if(isWin == true){
+            System.out.println(currentPlayer.name + " este castigator!");
+        }else {
+            System.out.println("Nu a castigat nimeni!");
+        }
     }
 
 }
